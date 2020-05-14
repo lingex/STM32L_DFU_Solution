@@ -74,9 +74,9 @@ void Error_Handler(void);
 #define PWR_EN_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
-#define USBD_DFU_APP_END_ADD        0x08010000
+//#define USBD_DFU_APP_END_ADD        0x08010000
+#define USBD_DFU_APP_END_ADD        0x08020000
 
-#define APP_ADDR										0x08003000
 
 #define FLASH_ERASE_TIME            (uint16_t)50 
 #define FLASH_PROGRAM_TIME           (uint16_t)50

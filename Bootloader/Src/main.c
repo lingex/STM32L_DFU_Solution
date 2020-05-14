@@ -233,7 +233,7 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 bool IsAppExist(void)
 {
-  uint32_t *mem = (uint32_t*)APP_ADDR;
+  uint32_t *mem = (uint32_t*)USBD_DFU_APP_DEFAULT_ADD;
   
   if ((mem[0] == 0x00000000 || mem[0] == 0xFFFFFFFF)
       &&(mem[1] == 0x00000000 || mem[1] == 0xFFFFFFFF)
@@ -259,10 +259,10 @@ void RunApp(void)
   //HAL_NVIC_ClearPendingIRQ(SysTick_IRQn);
  
 	// get the application stack pointer (1st entry in the app vector table)
-	appStack = (uint32_t)*((__IO uint32_t*)APP_ADDR);
+	appStack = (uint32_t)*((__IO uint32_t*)USBD_DFU_APP_DEFAULT_ADD);
  
 	// Get the app entry point (2nd entry in the app vector table
-	appEntry = (pFunction)*(__IO uint32_t*)(APP_ADDR + 4);
+	appEntry = (pFunction)*(__IO uint32_t*)(USBD_DFU_APP_DEFAULT_ADD + 4);
  
 	HAL_RCC_DeInit();
 	HAL_DeInit();
@@ -272,7 +272,7 @@ void RunApp(void)
 	SysTick->VAL  = 0;
  
 	// Reconfigure vector table offset to match the app location
-	SCB->VTOR = APP_ADDR;
+	SCB->VTOR = USBD_DFU_APP_DEFAULT_ADD;
 	__set_MSP(appStack); // Set app stack pointer
 	appEntry(); // Start the app
  
