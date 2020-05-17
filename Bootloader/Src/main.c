@@ -52,10 +52,11 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 /* USER CODE BEGIN PFP */
 
-bool IsAppExist(void);
+bool IsAppExist(uint32_t addr);
 bool IsKeyPressed(void);
+bool IsBTOPressed(void);
 
-void RunApp(void);
+void RunApp(uint32_t appAddr);
 
 typedef void (*pFunction)(void); 
 pFunction JumpToApplication;
@@ -94,14 +95,16 @@ int main(void)
   /* USER CODE BEGIN SysInit */
 	MX_GPIO_Init();
 #if 1	
-	if(IsAppExist() && !IsKeyPressed())
+	if((IsAppExist(USBD_DFU_APP_DEFAULT_ADD) && IsAppExist(USBD_OFFICIAL_APP_ADD)) && !IsKeyPressed())
 
   {
+		volatile uint32_t appAddr = IsBTOPressed()&& IsAppExist(USBD_OFFICIAL_APP_ADD) ? USBD_OFFICIAL_APP_ADD : USBD_DFU_APP_DEFAULT_ADD;
+		
     //RunApp();	//this will cost more flash space
-		JumpAddress = *(__IO uint32_t*)(USBD_DFU_APP_DEFAULT_ADD +4);
+		JumpAddress = *(__IO uint32_t*)(appAddr + 4);
 		JumpToApplication = (pFunction) JumpAddress;
 					
-		__set_MSP(*(__IO uint32_t*)USBD_DFU_APP_DEFAULT_ADD);
+		__set_MSP(*(__IO uint32_t*)appAddr);
 		JumpToApplication();
   }
 	
@@ -214,11 +217,11 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : BTN_Pin */
-  GPIO_InitStruct.Pin = BTN_Pin;
+  /*Configure GPIO pins : BTO_Pin BTN_Pin */
+  GPIO_InitStruct.Pin = BTO_Pin|BTN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(BTN_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pins : LED_Pin PWR_EN_Pin */
   GPIO_InitStruct.Pin = LED_Pin|PWR_EN_Pin;
@@ -231,24 +234,19 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 /* USER CODE BEGIN 4 */
-bool IsAppExist(void)
+bool IsAppExist(uint32_t addr)
 {
-  uint32_t *mem = (uint32_t*)USBD_DFU_APP_DEFAULT_ADD;
+  uint32_t *mem = (uint32_t*)addr;
   
   if ((mem[0] == 0x00000000 || mem[0] == 0xFFFFFFFF)
-      &&(mem[1] == 0x00000000 || mem[1] == 0xFFFFFFFF)
-      &&(mem[2] == 0x00000000 || mem[2] == 0xFFFFFFFF)
-      &&(mem[3] == 0x00000000 || mem[3] == 0xFFFFFFFF))
+      &&(mem[1] == 0x00000000 || mem[1] == 0xFFFFFFFF))
   {
     return false;
   }
-  else
-  {
-    return true;
-  }
+  return true;
 }
 
-void RunApp(void)
+void RunApp(uint32_t appAddr)
 {
   /* Function pointer to the address of the user application. */
 
@@ -259,10 +257,10 @@ void RunApp(void)
   //HAL_NVIC_ClearPendingIRQ(SysTick_IRQn);
  
 	// get the application stack pointer (1st entry in the app vector table)
-	appStack = (uint32_t)*((__IO uint32_t*)USBD_DFU_APP_DEFAULT_ADD);
+	appStack = (uint32_t)*((__IO uint32_t*)appAddr);
  
 	// Get the app entry point (2nd entry in the app vector table
-	appEntry = (pFunction)*(__IO uint32_t*)(USBD_DFU_APP_DEFAULT_ADD + 4);
+	appEntry = (pFunction)*(__IO uint32_t*)(appAddr + 4);
  
 	HAL_RCC_DeInit();
 	HAL_DeInit();
@@ -272,7 +270,7 @@ void RunApp(void)
 	SysTick->VAL  = 0;
  
 	// Reconfigure vector table offset to match the app location
-	SCB->VTOR = USBD_DFU_APP_DEFAULT_ADD;
+	SCB->VTOR = appAddr;
 	__set_MSP(appStack); // Set app stack pointer
 	appEntry(); // Start the app
  
@@ -283,6 +281,12 @@ bool IsKeyPressed(void)
 {
   return (HAL_GPIO_ReadPin(BTN_GPIO_Port, BTN_Pin) == GPIO_PIN_RESET);
 }
+
+bool IsBTOPressed(void)
+{
+  return (HAL_GPIO_ReadPin(BTO_GPIO_Port, BTO_Pin) == GPIO_PIN_RESET);
+}
+
 /* USER CODE END 4 */
 
 /**

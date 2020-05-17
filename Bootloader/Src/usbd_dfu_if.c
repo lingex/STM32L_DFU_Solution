@@ -182,7 +182,7 @@ uint16_t MEM_If_DeInit_FS(void)
 uint16_t MEM_If_Erase_FS(uint32_t Add)
 {
   /* USER CODE BEGIN 2 */
-uint32_t NbOfPages = 0;
+	uint32_t NbOfPages = 0;
 	uint32_t PageError = 0;
 	FLASH_EraseInitTypeDef pEraseInit;
 	

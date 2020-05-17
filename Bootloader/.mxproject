@@ -1,7 +1,7 @@
 [PreviousGenFiles]
-HeaderPath=D:/Dev/STM32/DFU_Bootloader/Bootloader/Inc
+HeaderPath=U:/Dev/STM32/DFU_Bootloader/STM32L_DFU_Solution/Bootloader/Inc
 HeaderFiles=usb_device.h;usbd_conf.h;usbd_desc.h;usbd_storage_if.h;stm32l1xx_it.h;stm32l1xx_hal_conf.h;main.h;usbd_dfu_if.h;
-SourcePath=D:/Dev/STM32/DFU_Bootloader/Bootloader/Src
+SourcePath=U:/Dev/STM32/DFU_Bootloader/STM32L_DFU_Solution/Bootloader/Src
 SourceFiles=usb_device.c;usbd_conf.c;usbd_desc.c;usbd_storage_if.c;stm32l1xx_it.c;stm32l1xx_hal_msp.c;main.c;usbd_dfu_if.c;
 
 [PreviousLibFiles]
