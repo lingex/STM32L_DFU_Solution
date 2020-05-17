@@ -1,2 +1,3 @@
 # STM32L_DFU_Solution
-dfu bootloader for STM32L100 and a simple application
+This branch is a special bootloader version that treat STM32L100R8(64k flash) as STM32L100RB(128k flash), 
+strongly not recommended to use in any environment except testing.
